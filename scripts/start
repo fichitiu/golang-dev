@@ -49,7 +49,7 @@ build_it()
 {
   runner_printf 'building app... ';
   set_red;
-  go build -o $(pwd)/app;
+  go build -o $(pwd)/application;
   BUILD_FAILED=$?;
   set_normal;
   if [ ${BUILD_FAILED} -eq 0 ]; then
@@ -62,7 +62,7 @@ build_it()
 run_it()
 {
   runner_printf 'starting app... ';
-  $(pwd)/app ${ALL_PARAMETERS} &
+  $(pwd)/application ${ALL_PARAMETERS} &
   APP_PID=$!;
   app_printf "\n- - - app:${APP_PID} logs below this line - - -\n";
 }
@@ -72,7 +72,7 @@ kill_it()
   app_printf "- - - app:${APP_PID} logs above this line - - -\n";
   runner_printf "killing process ID ${APP_PID}... ";
   set_grey;
-  ps | grep app | grep ${APP_PID} && kill ${APP_PID} >/dev/null & wait;
+  ps | grep application | grep ${APP_PID} && kill ${APP_PID} >/dev/null & wait;
   set_normal;
   runner_printf "process with PID ${APP_PID} killed.\n";
 }
