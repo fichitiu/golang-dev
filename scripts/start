@@ -49,7 +49,7 @@ build_it()
 {
   runner_printf 'building app... ';
   set_red;
-  go build -o $(pwd)/application;
+  go build -o $(pwd)/app.${GOOS}.${GOARCH};
   BUILD_FAILED=$?;
   set_normal;
   if [ ${BUILD_FAILED} -eq 0 ]; then
@@ -62,7 +62,7 @@ build_it()
 run_it()
 {
   runner_printf 'starting app... ';
-  $(pwd)/application ${ALL_PARAMETERS} &
+  $(pwd)/app.${GOOS}.${GOARCH} ${ALL_PARAMETERS} &
   APP_PID=$!;
   app_printf "\n- - - app:${APP_PID} logs below this line - - -\n";
 }
@@ -72,7 +72,7 @@ kill_it()
   app_printf "- - - app:${APP_PID} logs above this line - - -\n";
   runner_printf "killing process ID ${APP_PID}... ";
   set_grey;
-  ps | grep application | grep ${APP_PID} && kill ${APP_PID} >/dev/null & wait;
+  ps | grep app | grep ${APP_PID} && kill ${APP_PID} >/dev/null & wait;
   set_normal;
   runner_printf "process with PID ${APP_PID} killed.\n";
 }
@@ -85,26 +85,13 @@ build_it;
 if [ $BUILD_FAILED -eq 0 ]; then run_it; else APP_PID=0; fi;
 
 
-# create the watch pattern - check if there
-# are any .go files and **/*.go files before adding
-# it to a pattern we will use later for inotifywatch
-WATCH_PATTERN='';
-ls *.go &>/dev/null && STAR_GO=1 || STAR_GO=0;
-ls **/*.go &>/dev/null && STAR_STAR_GO=1 || STAR_STAR_GO=0;
-if [ $STAR_GO -eq 1 ]; then
-  WATCH_PATTERN="*.go ${WATCH_PATTERN}"
-fi;
-if [ $STAR_STAR_GO -eq 1 ]; then
-  WATCH_PATTERN="**/*.go ${WATCH_PATTERN}"
-fi;
-
-
 # start the application and watch it
 INIT=0;
 inotifywait -q \
   -e close_write,modify,move,create,delete \
-  -m ${WATCH_PATTERN} \
-  @./app |
+  -m \
+  -r \
+  --include ".*\.go$" . |
 while read -r directory events filename; do
   if [ ${INIT} -ne 0 ]; then
     if [ ${APP_PID} -ne 0 ]; then kill_it; fi;

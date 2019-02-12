@@ -36,5 +36,5 @@ ENV PATH="/scripts:${PATH}"
 RUN chmod +x -R /scripts
 
 # famous last workds
-WORKDIR /go/src/app
+WORKDIR /go/src/application
 ENTRYPOINT [ "entrypoint" ]
