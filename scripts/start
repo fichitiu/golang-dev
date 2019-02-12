@@ -89,9 +89,8 @@ if [ $BUILD_FAILED -eq 0 ]; then run_it; else APP_PID=0; fi;
 INIT=0;
 inotifywait -q \
   -e close_write,modify,move,create,delete \
-  -m \
-  -r \
-  --include ".*\.go$" . |
+  -mr \
+  --include ".*\.go$" . @./vendor |
 while read -r directory events filename; do
   if [ ${INIT} -ne 0 ]; then
     if [ ${APP_PID} -ne 0 ]; then kill_it; fi;
