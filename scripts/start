@@ -59,6 +59,19 @@ build_it()
   fi;
 }
 
+generate_swagger()
+{
+    runner_printf 'generating swagger... ';
+    set_red;
+    GO111MODULE=off; swagger generate spec -o ./swagger.json
+    SWAGGER_FAILED=$?;
+    set_normal;
+    if [ ${SWAGGER_FAILED} -eq 0 ]; then
+        runner_printf 'generated.\n';
+    else
+        runner_errorf "failed to generate (generate exited with status code ${SWAGGER_FAILED}).\n";
+    fi;
+}
 run_it()
 {
   runner_printf 'starting app... ';
@@ -82,6 +95,7 @@ kill_it()
 # retrying
 update_dependencies;
 build_it;
+generate_swagger;
 if [ $BUILD_FAILED -eq 0 ]; then run_it; else APP_PID=0; fi;
 
 
@@ -96,6 +110,7 @@ while read -r directory events filename; do
     if [ ${APP_PID} -ne 0 ]; then kill_it; fi;
     update_dependencies;
     build_it;
+    generate_swagger;
     if [ ${BUILD_FAILED} -eq 0 ]; then run_it; fi;
   fi;
   INIT=1;
