@@ -63,7 +63,7 @@ generate_swagger()
 {
     runner_printf 'generating swagger... ';
     set_red;
-    GO111MODULE=off; swagger generate spec -o ./swagger.json
+    GO111MODULE=off; swagger generate spec -o ./swagger.json -m
     SWAGGER_FAILED=$?;
     set_normal;
     if [ ${SWAGGER_FAILED} -eq 0 ]; then
